@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI SCADA // PIPELINE TELEMETRY</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-[#050505] text-gray-200 font-mono h-screen overflow-hidden flex flex-col">
+
+     <div id="alarm-overlay" class="hidden fixed inset-0 z-50 bg-red-900/90 flex flex-col items-center justify-center backdrop-blur-sm">
+        <h1 class="text-7xl text-red-500 font-black animate-pulse uppercase tracking-widest mb-4 glitch-text" data-text="🚨 CRITICAL LEAK 🚨">🚨 CRITICAL LEAK 🚨</h1> 
+         <!-- <p id="alarm-text" class="text-3xl text-white font-bold mb-8 uppercase tracking-widest text-center shadow-black drop-shadow-lg">Leak Detected</p>   -->
+        <button id="btn-mute" class="px-8 py-3 bg-red-950 border border-red-500 text-red-400 hover:bg-red-500 hover:text-black transition-all font-bold tracking-widest">
+            MUTE AUDIO
+        </button>  
+    </div> 
+
+  
+
+    <header class="border-b border-cyan-900/50 bg-[#0a0a0e] p-4 shadow-[0_0_15px_rgba(0,255,255,0.1)] flex justify-between items-center shrink-0 z-10 relative">
+        <div class="flex items-center gap-4">
+            <h1 class="text-2xl font-black text-cyan-400 tracking-widest uppercase text-shadow-cyan">
+               SYS.CONTROL <span class="text-gray-500 text-sm font-normal">v3.1</span>
+            </h1>
+            <div id="status-indicator" class="flex items-center gap-2 px-3 py-1 bg-green-900/20 border border-green-500/30 rounded text-green-400 text-xs tracking-wider">
+                <span class="relative flex h-2 w-2">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                </span>
+                LIVE
+            </div>
+            <div id="disconnect-warning" class="hidden flex items-center gap-2 px-3 py-1 bg-red-900/20 border border-red-500/50 rounded text-red-500 text-xs tracking-wider animate-pulse">
+                ⚠️ DISCONNECTED
+            </div>
+        </div>
+
+        <div class="flex gap-6">
+            <div class="text-right">
+                <p class="text-[10px] text-gray-500 uppercase tracking-widest">AI Confidence</p>
+                <p class="text-xl font-bold text-purple-400 text-shadow-purple" id="ai-confidence">--%</p>
+            </div>
+            <div class="text-right">
+                <p class="text-[10px] text-gray-500 uppercase tracking-widest">System Health</p>
+                <p class="text-xl font-bold text-green-400 text-shadow-green" id="sys-health">--%</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 overflow-hidden p-4 flex flex-col lg:flex-row gap-6 relative z-0">
+        
+        <section class="flex-1 flex flex-col min-w-0 bg-[#0a0a0e] border border-cyan-900/30 rounded-lg p-4 relative scada-panel">
+            <div class="flex justify-between items-end mb-4">  
+                <div>
+                    <h2 class="text-cyan-500 font-bold tracking-widest text-sm mb-1 uppercase">Pressure Analytics</h2>
+                    <p class="text-xs text-gray-500" id="chart-subtitle">System Average vs Active Node</p>
+                </div>
+                <div class="flex bg-black border border-cyan-900/50 p-1 rounded">
+                    <button id="view-system" class="px-3 py-1 text-xs tracking-wider bg-cyan-900/40 text-cyan-400 transition-colors">SYSTEM VIEW</button>
+                    <button id="view-node" class="px-3 py-1 text-xs tracking-wider text-gray-500 hover:text-cyan-400 transition-colors">NODE VIEW</button>
+                </div>
+            </div>
+            
+            <div class="flex-1 relative w-full h-full min-h-[300px]">
+                <canvas id="pressureChart"></canvas>
+            </div>  
+        </section>
+
+        <section class="w-full lg:w-[450px] shrink-0 flex flex-col bg-[#0a0a0e] border border-cyan-900/30 rounded-lg p-4 scada-panel overflow-y-auto custom-scrollbar">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-cyan-500 font-bold tracking-widest text-sm uppercase">Node Diagnostics</h2>
+                <span class="text-xs text-gray-500">17 ACTIVE</span>
+            </div>
+            
+            <div id="node-grid" class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-3 gap-3">
+                </div>
+        </section>
+    </main>
+
+    <audio id="siren-audio" loop preload="auto">  
+        <source src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" type="audio/ogg">
+    </audio>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
+
+
+
