@@ -1,4 +1,5 @@
-const API_URL = 'http://localhost:5000/data';
+// const API_URL = 'http://localhost:5000/data';
+const API_URL = 'https://water-leakage-backend.onrender.com/data';
 const nodeGrid = document.getElementById('node-grid');
 const aiConfidenceEl = document.getElementById('ai-confidence');
 const sysHealthEl = document.getElementById('sys-health');

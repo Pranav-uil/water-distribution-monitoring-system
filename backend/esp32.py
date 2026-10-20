@@ -13,8 +13,8 @@ warnings.filterwarnings("ignore")
 MQTT_BROKER     = "broker.hivemq.com"
 MQTT_PORT       = 1883
 MQTT_TOPIC      = "pipenetwork/sensors/pressure"
-HTTP_SERVER_URL = "http://localhost:5000/api/pressure"
-
+# HTTP_SERVER_URL = "http://localhost:5000/api/pressure"
+HTTP_SERVER_URL = "https://water-leakage-backend.onrender.com/api/pressure"
 print("⏳ Loading ML Model (250MB)... Please wait...")
 try:
     model = joblib.load("rf_optimized_leak_detector.pkl")
