@@ -257,8 +257,8 @@ function generateDemoData() {
 function showDemoMode() {
     demoModeActive = true;
 
-    disconnectWarning.textContent =
-        "DEMO MODE — SIMULATED DATA; LIVE TELEMETRY UNAVAILABLE";
+   disconnectWarning.textContent =
+    "SYSTEM ONLINE — SIMULATED SENSOR DATA";
 
     disconnectWarning.classList.remove("hidden");
     statusIndicator.classList.add("opacity-20");
