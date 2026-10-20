@@ -27,6 +27,13 @@ let chartAvgData = [];
 let chartSelectedNodeData = [];
 let chartInstance = null;
 
+// change
+let demoModeActive = false;
+let demoNodes = {};
+const disconnectWarningDefaultText =
+    disconnectWarning?.textContent?.trim() ||
+    "LIVE TELEMETRY CONNECTION LOST";
+
 
 
 function initUI() {
@@ -213,24 +220,113 @@ function setView(view) {
 }
 
 
+// change
+function generateDemoData() {
+    nodeNames.forEach((nodeId, index) => {
+        if (demoNodes[nodeId] === undefined) {
+            demoNodes[nodeId] = 104 + (index % 15);
+        }
+
+        // Simulated pressure variation for demonstration only
+        demoNodes[nodeId] += (Math.random() - 0.5) * 2;
+        demoNodes[nodeId] = Math.max(
+            95,
+            Math.min(125, demoNodes[nodeId])
+        );
+    });
+
+    const values = Object.values(demoNodes);
+    const avgPressure =
+        values.reduce((sum, value) => sum + value, 0) /
+        values.length;
+
+    return {
+        nodes: { ...demoNodes },
+        avgPressure,
+        ml_leaks: [],
+        confidence: 94,
+        health: 100,
+        lastUpdated: Date.now()
+    };
+}
+
+function showDemoMode() {
+    demoModeActive = true;
+
+    disconnectWarning.textContent =
+        "DEMO MODE — SIMULATED DATA; LIVE TELEMETRY UNAVAILABLE";
+
+    disconnectWarning.classList.remove("hidden");
+    statusIndicator.classList.add("opacity-20");
+}
+
+
+// async function fetchTelemetry() {
+//     try {
+//         const res = await fetch(API_URL);
+//         if (!res.ok) throw new Error("Network not ok");
+//         const data = await res.json();
+        
+       
+//         disconnectWarning.classList.add('hidden');
+//         statusIndicator.classList.remove('opacity-20');
+        
+//         updateDashboard(data);
+//     } catch (err) {
+//         console.warn("Telemetry Connection Lost:", err);
+//         disconnectWarning.classList.remove('hidden');
+//         statusIndicator.classList.add('opacity-20');
+//     }
+// }
+
+// new fetch telemetry()
 
 async function fetchTelemetry() {
     try {
-        const res = await fetch(API_URL);
-        if (!res.ok) throw new Error("Network not ok");
+        const res = await fetch(API_URL, { cache: "no-store" });
+
+        if (!res.ok) {
+            throw new Error("Backend request failed");
+        }
+
         const data = await res.json();
-        
-       
-        disconnectWarning.classList.add('hidden');
-        statusIndicator.classList.remove('opacity-20');
-        
+
+        // Render backend uses Date.now(), which is milliseconds.
+        const timestamp = Number(data.lastUpdated);
+        const updatedAt =
+            timestamp > 0 && timestamp < 1e12
+                ? timestamp * 1000
+                : timestamp;
+
+        const isStale =
+            !updatedAt ||
+            Date.now() - updatedAt > 10000;
+
+        if (isStale) {
+            showDemoMode();
+            updateDashboard(generateDemoData());
+            return;
+        }
+
+        // Fresh backend data: return to live mode.
+        demoModeActive = false;
+
+        disconnectWarning.textContent =
+            disconnectWarningDefaultText;
+
+        disconnectWarning.classList.add("hidden");
+        statusIndicator.classList.remove("opacity-20");
+
         updateDashboard(data);
+
     } catch (err) {
-        console.warn("Telemetry Connection Lost:", err);
-        disconnectWarning.classList.remove('hidden');
-        statusIndicator.classList.add('opacity-20');
+        console.warn("Live telemetry unavailable:", err);
+
+        showDemoMode();
+        updateDashboard(generateDemoData());
     }
 }
+
 
 function updateDashboard(data) {
     if (!data || !data.nodes) return;
